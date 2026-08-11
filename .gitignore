@@ -1,0 +1,25 @@
+# Python
+backend/venv/
+backend/__pycache__/
+*.py[cod]
+db.sqlite3
+
+# React
+frontend/node_modules/
+frontend/dist/
+
+# Root accidental node project
+node_modules/
+
+# Environment
+.env
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Postman local workspace
+.postman/

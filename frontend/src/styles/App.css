@@ -1,0 +1,40 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Root */
+html,
+body,
+#root {
+    height: 100%;
+}
+
+/* Body */
+body {
+    font-family: "Segoe UI", sans-serif;
+    background-color: #F5F7FB;
+    color: #1F2937;
+}
+
+/* Main App Layout */
+.app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header + Content + Footer Layout */
+.content-container {
+    flex: 1;
+    display: flex;
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
