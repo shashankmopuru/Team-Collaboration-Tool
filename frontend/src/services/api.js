@@ -7,4 +7,30 @@ const api = axios.create({
   },
 });
 
+
+// ========================================
+// ADD ACCESS TOKEN TO EVERY REQUEST
+// ========================================
+
+api.interceptors.request.use(
+  (config) => {
+
+    const accessToken = localStorage.getItem("access");
+
+    if (accessToken) {
+
+      config.headers.Authorization =
+        `Bearer ${accessToken}`;
+
+    }
+
+    return config;
+  },
+
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+
 export default api;

@@ -3,6 +3,9 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db.models import Q
+from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import (
     urlsafe_base64_encode,
@@ -14,8 +17,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from .serializers import RegisterSerializer, UserProfileSerializer
+from .permissions import IsAdminOrManager, IsAdminOnly
+from .serializers import (
+    RegisterSerializer,
+    UserProfileSerializer,
+    EmployeeListSerializer,
+)
 
 
 class RegisterView(APIView):
@@ -88,13 +95,111 @@ class ProfileView(APIView):
 
     def get(self, request):
 
-        serializer = UserProfileSerializer(request.user)
+        serializer = UserProfileSerializer(
+            request.user
+        )
 
         return Response(
             serializer.data,
             status=status.HTTP_200_OK
         )
 
+    def patch(self, request):
+
+        serializer = UserProfileSerializer(
+            request.user,
+            data=request.data,
+            partial=True
+        )
+
+        if serializer.is_valid():
+
+            serializer.save()
+
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+class EmployeeListCreateView(ListCreateAPIView):
+
+    queryset = User.objects.select_related(
+        "profile"
+    ).all()
+
+    def get_permissions(self):
+
+        if self.request.method == "POST":
+            return [IsAdminOrManager()]
+
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+
+        queryset = User.objects.select_related(
+            "profile"
+        ).all()
+
+        search = self.request.query_params.get("search")
+        department = self.request.query_params.get("department")
+        role = self.request.query_params.get("role")
+
+        if search:
+            queryset = queryset.filter(
+                Q(username__icontains=search)
+                | Q(email__icontains=search)
+                | Q(first_name__icontains=search)
+                | Q(last_name__icontains=search)
+            )
+
+        if department:
+            queryset = queryset.filter(
+                profile__department__iexact=department
+            )
+
+        if role:
+            queryset = queryset.filter(
+                profile__role__iexact=role
+            )
+
+        return queryset
+
+    def get_serializer_class(self):
+
+        if self.request.method == "POST":
+            return RegisterSerializer
+
+        return EmployeeListSerializer
+
+class EmployeeDetailView(
+    RetrieveUpdateDestroyAPIView
+):
+
+    queryset = User.objects.select_related(
+        "profile"
+    ).all()
+
+    serializer_class = EmployeeListSerializer
+
+    def get_permissions(self):
+
+        if self.request.method == "DELETE":
+            return [IsAdminOnly()]
+
+        if self.request.method in ["PUT", "PATCH"]:
+            return [IsAdminOrManager()]
+
+        return [IsAuthenticated()]
+
+    def perform_destroy(self, instance):
+
+        instance.is_active = False
+        instance.save(update_fields=["is_active"])
 
 class ForgotPasswordView(APIView):
 

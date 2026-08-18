@@ -1,16 +1,35 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import {
+  FiMail,
+  FiLock,
+  FiEye,
+  FiEyeOff,
+  FiUsers,
+  FiCalendar,
+  FiBarChart2,
+} from "react-icons/fi";
+
 import api from "../services/api";
 import logo from "../assets/logo.png";
+
 import "../styles/Login.css";
 
 function Login() {
   const navigate = useNavigate();
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  // =========================
+  // HANDLE INPUT CHANGES
+  // =========================
 
   const handleChange = (e) => {
     setFormData({
@@ -19,8 +38,14 @@ function Login() {
     });
   };
 
+  // =========================
+  // HANDLE LOGIN
+  // =========================
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
 
     try {
       const response = await api.post("login/", formData);
@@ -28,75 +53,387 @@ function Login() {
       localStorage.setItem("access", response.data.access);
       localStorage.setItem("refresh", response.data.refresh);
 
-      alert("Login Successful!");
+      alert("Welcome back!");
 
       navigate("/dashboard");
     } catch (error) {
-      alert("Invalid Email or Password");
+      console.error("Login error:", error);
+
+      alert(
+        error.response?.data?.detail ||
+          error.response?.data?.error ||
+          "Invalid Email or Password"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
+    <div className="login-page">
 
-        <img
-          src={logo}
-          alt="Team Sync Logo"
-          className="login-logo"
-        />
+      {/* =========================================
+          BACKGROUND DECORATIONS
+      ========================================== */}
 
-        <h2>Welcome Back</h2>
+      <div className="background-circle circle1"></div>
+      <div className="background-circle circle2"></div>
+      <div className="background-wave"></div>
 
-        <p className="subtitle">
-          Login to Team Sync
-        </p>
 
-        <form onSubmit={handleSubmit}>
+      {/* =========================================
+          LEFT PANEL
+      ========================================== */}
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={formData.email}
-            onChange={handleChange}
-            required
+      <section className="left-panel">
+
+        {/* =====================================
+            BRAND
+        ====================================== */}
+
+        <div className="brand">
+
+          <img
+            src={logo}
+            alt="Team Sync Logo"
+            className="brand-logo"
           />
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+          <div className="brand-text">
 
-          <div className="login-options">
+            <h2>TEAM SYNC</h2>
 
-            <label>
-              <input type="checkbox" />
-              {" "}Remember Me
-            </label>
-
-            <Link to="/forgot-password">
-              Forgot Password?
-            </Link>
+            <span>
+              Employee Management System
+            </span>
 
           </div>
 
-          <button type="submit">
-            Login
-          </button>
+        </div>
 
-        </form>
 
-        <p className="register-link">
-          Don't have an account?
-          <Link to="/register"> Register</Link>
-        </p>
+        {/* =====================================
+            HERO CONTENT
+        ====================================== */}
 
-      </div>
+        <div className="hero-content">
+
+          <p className="small-heading">
+            EMPLOYEE MANAGEMENT SIMPLIFIED
+          </p>
+
+
+          <h1>
+            Manage Your
+            <br />
+            Team <span>Efficiently</span>
+          </h1>
+
+
+          <p className="description">
+            Team Sync helps organizations manage employees,
+            attendance, leave requests, projects and teams
+            from one secure platform.
+          </p>
+
+
+          {/* =================================
+              FEATURES
+          ================================== */}
+
+          <div className="feature-list">
+
+            {/* FEATURE 1 */}
+
+            <div className="feature-item">
+
+              <div className="feature-icon">
+                <FiUsers />
+              </div>
+
+              <div className="feature-content">
+
+                <h4>
+                  Employee Management
+                </h4>
+
+                <span>
+                  Organize your workforce effortlessly.
+                </span>
+
+              </div>
+
+            </div>
+
+
+            {/* FEATURE 2 */}
+
+            <div className="feature-item">
+
+              <div className="feature-icon">
+                <FiCalendar />
+              </div>
+
+              <div className="feature-content">
+
+                <h4>
+                  Attendance & Leave
+                </h4>
+
+                <span>
+                  Track attendance and leave records.
+                </span>
+
+              </div>
+
+            </div>
+
+
+            {/* FEATURE 3 */}
+
+            <div className="feature-item">
+
+              <div className="feature-icon">
+                <FiBarChart2 />
+              </div>
+
+              <div className="feature-content">
+
+                <h4>
+                  Analytics & Reports
+                </h4>
+
+                <span>
+                  Gain insights with beautiful dashboards.
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* =========================================
+          RIGHT PANEL
+      ========================================== */}
+
+      <section className="right-panel">
+
+
+        {/* =====================================
+            TOP NAVIGATION
+        ====================================== */}
+
+        <nav className="navbar">
+
+          <ul>
+
+            <li>
+              <Link to="/">
+                Home
+              </Link>
+            </li>
+
+            <li>
+              <a href="#contact">
+                Contact
+              </a>
+            </li>
+
+          </ul>
+
+        </nav>
+
+
+        {/* =====================================
+            LOGIN CARD
+        ====================================== */}
+
+        <div className="login-card">
+
+
+          {/* =================================
+              LOGIN LOGO
+          ================================== */}
+
+          <div className="login-logo-wrapper">
+
+            <img
+              src={logo}
+              alt="Team Sync Logo"
+              className="login-logo"
+            />
+
+          </div>
+
+
+          {/* =================================
+              LOGIN HEADING
+          ================================== */}
+
+          <div className="login-heading">
+
+            <h2>
+              Welcome Back!
+            </h2>
+
+            <p>
+              Sign in to your Team Sync account
+            </p>
+
+          </div>
+
+
+          {/* =================================
+              LOGIN FORM
+          ================================== */}
+
+          <form onSubmit={handleSubmit}>
+
+
+            {/* =================================
+                EMAIL
+            ================================== */}
+
+            <div className="input-container">
+
+              <FiMail className="input-icon" />
+
+              <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                value={formData.email}
+                onChange={handleChange}
+                autoComplete="email"
+                required
+              />
+
+            </div>
+
+
+            {/* =================================
+                PASSWORD
+            ================================== */}
+
+            <div className="input-container">
+
+              <FiLock className="input-icon" />
+
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                autoComplete="current-password"
+                required
+              />
+
+
+              {/* SHOW EYE ONLY WHEN USER TYPES */}
+
+              {formData.password.length > 0 && (
+
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() =>
+                    setShowPassword(
+                      (previous) => !previous
+                    )
+                  }
+                  aria-label={
+                    showPassword
+                      ? "Hide password"
+                      : "Show password"
+                  }
+                >
+
+                  {showPassword ? (
+                    <FiEyeOff />
+                  ) : (
+                    <FiEye />
+                  )}
+
+                </button>
+
+              )}
+
+            </div>
+
+
+            {/* =================================
+                REMEMBER ME / FORGOT PASSWORD
+            ================================== */}
+
+            <div className="login-options">
+
+              <label className="remember-me">
+
+                <input
+                  type="checkbox"
+                  name="remember"
+                />
+
+                <span>
+                  Remember Me
+                </span>
+
+              </label>
+
+
+              <Link to="/forgot-password">
+                Forgot Password?
+              </Link>
+
+            </div>
+
+
+            {/* =================================
+                LOGIN BUTTON
+            ================================== */}
+
+            <button
+              type="submit"
+              className="login-button"
+              disabled={loading}
+            >
+
+              {loading ? (
+                "Signing In..."
+              ) : (
+                "Sign In"
+              )}
+
+            </button>
+
+          </form>
+
+
+          {/* =================================
+              REGISTER LINK
+          ================================== */}
+
+          <p className="register-link">
+
+            Don't have an account?{" "}
+
+            <Link to="/register">
+              Create an account
+            </Link>
+
+          </p>
+
+        </div>
+
+      </section>
+
     </div>
   );
 }
