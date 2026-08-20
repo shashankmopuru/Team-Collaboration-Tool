@@ -3,8 +3,10 @@
    ========================================================= */
 
 .members-layout {
-  min-height: 100vh;
+  width: 100%;
+  height: 100vh;
   display: flex;
+  overflow: hidden;
   background: #f6f9fd;
   color: #102b52;
   font-family: "Poppins", sans-serif;
@@ -16,16 +18,13 @@
    ========================================================= */
 
 .members-sidebar {
-  width: 320px;
-  min-width: 320px;
+  flex: 0 0 250px;
+
+  width: 250px;
   height: 100vh;
-  position: fixed;
-  left: 0;
-  top: 0;
-  background: #ffffff;
-  border-right: 1px solid #e5edf6;
+
   overflow-y: auto;
-  z-index: 100;
+  overflow-x: hidden;
 }
 
 .members-brand {
@@ -106,9 +105,16 @@
    ========================================================= */
 
 .members-main {
-  width: calc(100% - 320px);
-  margin-left: 320px;
+  flex: 1;
+
+  width: auto;
+  height: 100vh;
+
   min-width: 0;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 
@@ -124,6 +130,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 30px;
+  box-sizing: border-box;
 }
 
 .members-global-search {
@@ -136,6 +143,7 @@
   align-items: center;
   padding: 0 13px;
   gap: 10px;
+  box-sizing: border-box;
 }
 
 .members-global-search svg {
@@ -150,6 +158,7 @@
   font-size: 14px;
   font-family: inherit;
   color: #102b52;
+  background: transparent;
 }
 
 .members-global-search input::placeholder {
@@ -163,7 +172,6 @@
   color: #6f84a1;
   font-size: 10px;
 }
-
 
 .members-header-right {
   display: flex;
@@ -239,9 +247,11 @@
    ========================================================= */
 
 .members-content {
+  width: 100%;
   padding: 38px 42px 50px;
   max-width: 1700px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 
@@ -290,6 +300,7 @@
   background: #087fc8;
 }
 
+
 /* =========================================================
    STAT CARDS
    ========================================================= */
@@ -310,6 +321,7 @@
   align-items: center;
   gap: 13px;
   padding: 15px 17px;
+  box-sizing: border-box;
 }
 
 .stat-icon {
@@ -387,6 +399,7 @@
   align-items: center;
   gap: 8px;
   padding: 0 11px;
+  box-sizing: border-box;
 }
 
 .member-search svg {
@@ -401,6 +414,7 @@
   font-family: inherit;
   font-size: 12px;
   color: #102b52;
+  background: transparent;
 }
 
 .members-filter-card select {
@@ -421,6 +435,7 @@
    ========================================================= */
 
 .members-table-card {
+  position: relative;
   background: #ffffff;
   border: 1px solid #e0e9f3;
   border-radius: 10px;
@@ -449,6 +464,7 @@
   color: #4d668b;
   font-size: 11px;
   font-weight: 700;
+  box-sizing: border-box;
 }
 
 .member-row {
@@ -457,6 +473,7 @@
   border-bottom: 1px solid #edf1f6;
   color: #405d82;
   font-size: 12px;
+  box-sizing: border-box;
 }
 
 .member-row:last-child {
@@ -600,18 +617,12 @@
 .employee-action-menu {
   position: absolute;
   right: 8px;
-
-  /* Open upward so it isn't cut off */
   bottom: 38px;
-
   width: 185px;
   background: #ffffff;
   border: 1px solid #dce6f1;
   border-radius: 10px;
-
-  box-shadow:
-    0 12px 30px rgba(25, 55, 90, 0.16);
-
+  box-shadow: 0 12px 30px rgba(25, 55, 90, 0.16);
   padding: 6px;
   z-index: 9999;
 }
@@ -619,23 +630,16 @@
 .employee-action-menu button {
   width: 100%;
   height: 38px;
-
   border: none;
   background: transparent;
-
   padding: 0 12px;
-
   display: flex;
   align-items: center;
-
   text-align: left;
-
   border-radius: 7px;
-
   color: #405d82;
   font-family: inherit;
   font-size: 13px;
-
   cursor: pointer;
 }
 
@@ -686,6 +690,32 @@
 
 
 /* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+.members-main::-webkit-scrollbar,
+.members-sidebar::-webkit-scrollbar {
+  width: 7px;
+}
+
+.members-main::-webkit-scrollbar-track,
+.members-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.members-main::-webkit-scrollbar-thumb,
+.members-sidebar::-webkit-scrollbar-thumb {
+  background: #cbd8e7;
+  border-radius: 10px;
+}
+
+.members-main::-webkit-scrollbar-thumb:hover,
+.members-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #aebfd3;
+}
+
+
+/* =========================================================
    RESPONSIVE
    ========================================================= */
 
@@ -707,6 +737,7 @@
 
   .members-table-card {
     overflow-x: auto;
+    overflow-y: visible;
   }
 
   .members-table-header,

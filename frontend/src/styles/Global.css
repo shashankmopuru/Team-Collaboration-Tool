@@ -1,43 +1,103 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 
+/* =========================================
+   GLOBAL RESET
+========================================= */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+
+/* =========================================
+   ROOT
+========================================= */
+
 html,
 body,
 #root {
   width: 100%;
+  min-width: 0;
   min-height: 100%;
   margin: 0;
   padding: 0;
 }
 
+
+/* =========================================
+   HTML
+========================================= */
+
 html {
   scroll-behavior: smooth;
 }
+
+
+/* =========================================
+   BODY
+========================================= */
 
 body {
   font-family: "Poppins", sans-serif;
   background: #f4faff;
   color: #13213c;
+
+  /*
+    IMPORTANT:
+    Only prevent horizontal overflow globally.
+    Do NOT use overflow: hidden here.
+  */
+  overflow-x: hidden;
 }
 
+
+/* =========================================
+   FORM ELEMENTS
+========================================= */
+
 button,
-input {
+input,
+select,
+textarea {
   font-family: inherit;
 }
+
+
+/* =========================================
+   BUTTONS
+========================================= */
 
 button {
   cursor: pointer;
 }
 
+
+/* =========================================
+   LINKS
+========================================= */
+
 a {
   text-decoration: none;
 }
 
-ul {
+
+/* =========================================
+   LISTS
+========================================= */
+
+ul,
+ol {
   list-style: none;
+}
+
+
+/* =========================================
+   IMAGES
+========================================= */
+
+img {
+  max-width: 100%;
+  display: block;
 }

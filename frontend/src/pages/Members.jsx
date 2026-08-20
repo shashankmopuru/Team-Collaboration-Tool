@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
-import logo from "../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 import {
   FiSearch,
   FiPlus,
   FiBell,
   FiChevronDown,
   FiUsers,
-  FiUserCheck,
-  FiBriefcase,
-  FiShield,
-  FiMoreVertical,
   FiHome,
   FiFolder,
   FiCheckSquare,
@@ -19,201 +15,697 @@ import {
   FiVolume2,
   FiBarChart2,
   FiSettings,
+  FiUser,
+  FiLock,
+  FiHelpCircle,
+  FiLogOut,
+  FiMoreVertical,
+  FiUserCheck,
+  FiBriefcase,
+  FiShield,
 } from "react-icons/fi";
 
-import "../styles/Dashboard.css";
 import api from "../services/api";
+import logo from "../assets/logo.png";
+
+import "../styles/Dashboard.css";
 import "../styles/Members.css";
 
+
 function Members() {
+
+  const navigate = useNavigate();
+
+  /* =====================================================
+     EMPLOYEES
+     ===================================================== */
+
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+
+
+  /* =====================================================
+     FILTERS
+     ===================================================== */
+
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+
+
+  /* =====================================================
+     ACTION MENU
+     ===================================================== */
+
   const [openMenu, setOpenMenu] = useState(null);
 
-  useEffect(() => {
-    fetchEmployees();
-  }, []);
+
+  /* =====================================================
+     PROFILE
+     ===================================================== */
+
+  const [profile, setProfile] = useState(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+
+  /* =====================================================
+     FETCH EMPLOYEES
+     ===================================================== */
 
   const fetchEmployees = async () => {
+
     try {
+
+      setLoading(true);
+
       const response = await api.get("employees/");
+
       setEmployees(response.data);
+
     } catch (error) {
-      console.error("Failed to load employees:", error);
+
+      console.error(
+        "Failed to load employees:",
+        error
+      );
+
+      if (error.response?.status === 401) {
+
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+
+        navigate("/login");
+      }
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
-  const filteredEmployees = employees.filter((employee) => {
-    const searchText = search.toLowerCase();
 
-    const matchesSearch =
-      employee.username?.toLowerCase().includes(searchText) ||
-      employee.email?.toLowerCase().includes(searchText) ||
-      employee.department?.toLowerCase().includes(searchText) ||
-      employee.first_name?.toLowerCase().includes(searchText) ||
-      employee.last_name?.toLowerCase().includes(searchText);
+  /* =====================================================
+     FETCH PROFILE
+     ===================================================== */
 
-    const matchesRole =
-      roleFilter === "all" ||
-      employee.role?.toLowerCase() === roleFilter;
+  const fetchProfile = async () => {
 
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && employee.is_active !== false) ||
-      (statusFilter === "inactive" && employee.is_active === false);
+    try {
 
-    return matchesSearch && matchesRole && matchesStatus;
-  });
+      const response = await api.get("profile/");
 
-  const totalMembers = employees.length;
+      setProfile(response.data);
 
-  const activeMembers = employees.filter(
-    (employee) => employee.is_active !== false
-  ).length;
+    } catch (error) {
 
-  const managers = employees.filter(
-    (employee) => employee.role === "manager"
-  ).length;
+      console.error(
+        "Failed to load profile:",
+        error
+      );
 
-  const admins = employees.filter(
-    (employee) => employee.role === "admin"
-  ).length;
+      if (error.response?.status === 401) {
 
-  const getFullName = (employee) => {
-    const fullName = [
-      employee.first_name,
-      employee.last_name,
-    ]
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+
+        navigate("/login");
+      }
+
+    }
+
+  };
+
+
+  useEffect(() => {
+
+    fetchEmployees();
+    fetchProfile();
+
+  }, []);
+
+
+  /* =====================================================
+     CLOSE ACTION MENU
+     ===================================================== */
+
+  useEffect(() => {
+
+    const handleClickOutside = () => {
+      setOpenMenu(null);
+    };
+
+    document.addEventListener(
+      "click",
+      handleClickOutside
+    );
+
+    return () => {
+
+      document.removeEventListener(
+        "click",
+        handleClickOutside
+      );
+
+    };
+
+  }, []);
+
+
+  /* =====================================================
+     PROFILE DATA
+     ===================================================== */
+
+  const firstName =
+    profile?.first_name ||
+    profile?.username ||
+    "User";
+
+  const fullName =
+    [profile?.first_name, profile?.last_name]
       .filter(Boolean)
-      .join(" ");
+      .join(" ") ||
+    profile?.username ||
+    "User";
 
-    return fullName || employee.username || "Unknown User";
+  const email =
+    profile?.email || "";
+
+  const role =
+    profile?.profile?.role || "employee";
+
+  const displayRole =
+    role.charAt(0).toUpperCase() +
+    role.slice(1);
+
+  const avatarLetter = (
+    profile?.first_name?.charAt(0) ||
+    profile?.username?.charAt(0) ||
+    "U"
+  ).toUpperCase();
+
+
+  /* =====================================================
+     LOGOUT
+     ===================================================== */
+
+  const handleLogout = () => {
+
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+
+    navigate("/login");
+
   };
+
+
+  /* =====================================================
+     STATISTICS
+     ===================================================== */
+
+  const totalMembers =
+    employees.length;
+
+  const activeMembers =
+    employees.filter(
+      (employee) =>
+        employee.is_active !== false
+    ).length;
+
+  const managers =
+    employees.filter(
+      (employee) =>
+        employee.role === "manager"
+    ).length;
+
+  const admins =
+    employees.filter(
+      (employee) =>
+        employee.role === "admin"
+    ).length;
+
+
+  /* =====================================================
+     FILTER EMPLOYEES
+     ===================================================== */
+
+  const filteredEmployees =
+    employees.filter((employee) => {
+
+      const searchValue =
+        search.toLowerCase();
+
+      const employeeName =
+        `${employee.first_name || ""} ${
+          employee.last_name || ""
+        }`.toLowerCase();
+
+      const username =
+        employee.username
+          ?.toLowerCase() || "";
+
+      const employeeEmail =
+        employee.email
+          ?.toLowerCase() || "";
+
+      const department =
+        employee.department
+          ?.toLowerCase() || "";
+
+
+      const matchesSearch =
+        employeeName.includes(searchValue) ||
+        username.includes(searchValue) ||
+        employeeEmail.includes(searchValue) ||
+        department.includes(searchValue);
+
+
+      const matchesRole =
+        roleFilter === "all" ||
+        employee.role === roleFilter;
+
+
+      const employeeActive =
+        employee.is_active !== false;
+
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "active" &&
+          employeeActive) ||
+        (statusFilter === "inactive" &&
+          !employeeActive);
+
+
+      return (
+        matchesSearch &&
+        matchesRole &&
+        matchesStatus
+      );
+
+    });
+
+
+  /* =====================================================
+     EMPLOYEE INITIAL
+     ===================================================== */
 
   const getInitial = (employee) => {
+
     return (
       employee.first_name?.charAt(0) ||
       employee.username?.charAt(0) ||
       "U"
     ).toUpperCase();
+
   };
 
+
+  /* =====================================================
+     FORMAT DATE
+     ===================================================== */
+
+  const formatDate = (date) => {
+
+    if (!date) {
+      return "-";
+    }
+
+    return new Date(date).toLocaleDateString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    );
+
+  };
+
+
+  /* =====================================================
+     OPEN EMPLOYEE MENU
+     ===================================================== */
+
+  const handleMenuClick = (
+    event,
+    employeeId
+  ) => {
+
+    event.stopPropagation();
+
+    setOpenMenu(
+      openMenu === employeeId
+        ? null
+        : employeeId
+    );
+
+  };
+
+
+  /* =====================================================
+     VIEW EMPLOYEE
+     ===================================================== */
+
+  const handleViewEmployee = (
+    employee
+  ) => {
+
+    setOpenMenu(null);
+
+    console.log(
+      "View employee:",
+      employee
+    );
+
+  };
+
+
+  /* =====================================================
+     EDIT EMPLOYEE
+     ===================================================== */
+
+  const handleEditEmployee = (
+    employee
+  ) => {
+
+    setOpenMenu(null);
+
+    console.log(
+      "Edit employee:",
+      employee
+    );
+
+  };
+
+
+  /* =====================================================
+     DELETE / DEACTIVATE EMPLOYEE
+     ===================================================== */
+
+  const handleDeleteEmployee = async (
+    employee
+  ) => {
+
+    setOpenMenu(null);
+
+    const confirmed =
+      window.confirm(
+        `Are you sure you want to remove ${employee.first_name || employee.username}?`
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    try {
+
+      await api.delete(
+        `employees/${employee.id}/`
+      );
+
+      await fetchEmployees();
+
+    } catch (error) {
+
+      console.error(
+        "Failed to delete employee:",
+        error
+      );
+
+      alert(
+        "Failed to delete employee."
+      );
+
+    }
+
+  };
+
+
+  /* =====================================================
+     RENDER
+     ===================================================== */
+
   return (
-    <div className="members-layout">
 
-      {/* SIDEBAR */}
+    <div className="dashboard-page">
 
-      <aside className="members-sidebar">
 
-        <div className="members-brand">
-          <div className="members-brand-logo">
-            <img src={logo} alt="Team Sync" />
-          </div>
+      {/* =================================================
+          SIDEBAR
+          SAME STRUCTURE AS DASHBOARD
+          ================================================= */}
+
+      <aside className="dashboard-sidebar">
+
+
+        {/* BRAND */}
+
+        <div className="sidebar-brand">
+
+          <img
+            src={logo}
+            alt="Team Sync"
+          />
 
           <div>
-            <h2>TEAM SYNC</h2>
-            <span>Employee Management</span>
+
+            <h2>
+              TEAM SYNC
+            </h2>
+
+            <span>
+              Employee Management
+            </span>
+
           </div>
+
         </div>
 
-        <nav className="members-nav">
 
-          <div className="nav-section-title">
+        {/* MAIN */}
+
+        <div className="sidebar-section">
+
+          <p className="sidebar-title">
             MAIN
-          </div>
+          </p>
 
-          <Link to="/dashboard" className="members-nav-item">
+          <Link
+            to="/dashboard"
+            className="sidebar-link"
+          >
             <FiHome />
-            <span>Dashboard</span>
+
+            <span>
+              Dashboard
+            </span>
+
           </Link>
 
-          <div className="nav-section-title">
+        </div>
+
+
+        {/* WORKSPACE */}
+
+        <div className="sidebar-section">
+
+          <p className="sidebar-title">
             WORKSPACE
-          </div>
+          </p>
 
-          <Link to="/workspaces" className="members-nav-item">
+          <Link
+            to="/workspaces"
+            className="sidebar-link"
+          >
+
             <FiFolder />
-            <span>Workspaces</span>
+
+            <span>
+              Workspaces
+            </span>
+
           </Link>
+
 
           <Link
             to="/members"
-            className="members-nav-item active"
+            className="sidebar-link active"
           >
+
             <FiUsers />
-            <span>Members</span>
+
+            <span>
+              Members
+            </span>
+
           </Link>
 
-          <div className="nav-section-title">
+        </div>
+
+
+        {/* PROJECTS */}
+
+        <div className="sidebar-section">
+
+          <p className="sidebar-title">
             PROJECTS
-          </div>
+          </p>
 
-          <Link to="/projects" className="members-nav-item">
+          <Link
+            to="/projects"
+            className="sidebar-link"
+          >
+
             <FiFolder />
-            <span>Projects</span>
+
+            <span>
+              Projects
+            </span>
+
           </Link>
 
-          <Link to="/tasks" className="members-nav-item">
+
+          <Link
+            to="/tasks"
+            className="sidebar-link"
+          >
+
             <FiCheckSquare />
-            <span>Tasks</span>
+
+            <span>
+              Tasks
+            </span>
+
           </Link>
 
-          <div className="nav-section-title">
+        </div>
+
+
+        {/* ATTENDANCE */}
+
+        <div className="sidebar-section">
+
+          <p className="sidebar-title">
             ATTENDANCE
-          </div>
+          </p>
 
-          <Link to="/attendance" className="members-nav-item">
+
+          <Link
+            to="/attendance"
+            className="sidebar-link"
+          >
+
             <FiCalendar />
-            <span>Attendance</span>
+
+            <span>
+              Attendance
+            </span>
+
           </Link>
 
-          <Link to="/leave-requests" className="members-nav-item">
+
+          <Link
+            to="/leave-requests"
+            className="sidebar-link"
+          >
+
             <FiFileText />
-            <span>Leave Requests</span>
+
+            <span>
+              Leave Requests
+            </span>
+
           </Link>
 
-          <div className="nav-section-title">
+        </div>
+
+
+        {/* COMMUNICATION */}
+
+        <div className="sidebar-section">
+
+          <p className="sidebar-title">
             COMMUNICATION
-          </div>
+          </p>
 
-          <Link to="/announcements" className="members-nav-item">
+
+          <Link
+            to="/announcements"
+            className="sidebar-link"
+          >
+
             <FiVolume2 />
-            <span>Announcements</span>
+
+            <span>
+              Announcements
+            </span>
+
           </Link>
 
-          <div className="nav-section-title">
+        </div>
+
+
+        {/* REPORTS */}
+
+        <div className="sidebar-section">
+
+          <p className="sidebar-title">
             REPORTS
-          </div>
+          </p>
 
-          <Link to="/reports" className="members-nav-item">
+
+          <Link
+            to="/reports"
+            className="sidebar-link"
+          >
+
             <FiBarChart2 />
-            <span>Reports</span>
+
+            <span>
+              Reports
+            </span>
+
           </Link>
 
-          <Link to="/settings" className="members-nav-item">
+
+          <Link
+            to="/settings"
+            className="sidebar-link"
+          >
+
             <FiSettings />
-            <span>Settings</span>
+
+            <span>
+              Settings
+            </span>
+
           </Link>
 
-        </nav>
+        </div>
 
       </aside>
 
 
-      {/* MAIN AREA */}
+      {/* =================================================
+          MAIN
+          ================================================= */}
 
-      <main className="members-main">
+      <main className="dashboard-main">
 
-        {/* HEADER */}
 
-        <header className="members-header">
+        {/* =================================================
+            HEADER
+            ================================================= */}
 
-          <div className="members-global-search">
+        <header className="dashboard-header">
+
+
+          {/* SEARCH */}
+
+          <div className="dashboard-search">
+
             <FiSearch />
 
             <input
@@ -221,28 +713,173 @@ function Members() {
               placeholder="Search anything..."
             />
 
-            <span>Ctrl + K</span>
+            <span>
+              Ctrl + K
+            </span>
+
           </div>
 
-          <div className="members-header-right">
 
-            <button className="notification-button">
+          {/* HEADER ACTIONS */}
+
+          <div className="header-actions">
+
+
+            {/* NOTIFICATIONS */}
+
+            <button
+              className="notification-button"
+              type="button"
+            >
+
               <FiBell />
-              <span>3</span>
+
+              <span>
+                3
+              </span>
+
             </button>
 
-            <div className="header-profile">
 
-              <div className="header-avatar">
-                S
-              </div>
+            {/* PROFILE */}
 
-              <div>
-                <strong>Shashank Reddy</strong>
-                <small>Admin</small>
-              </div>
+            <div className="profile-wrapper">
 
-              <FiChevronDown />
+              <button
+                className="profile-button"
+                type="button"
+                onClick={(event) => {
+
+                  event.stopPropagation();
+
+                  setProfileOpen(
+                    !profileOpen
+                  );
+
+                }}
+              >
+
+                <div className="profile-avatar">
+
+                  {avatarLetter}
+
+                </div>
+
+
+                <div className="profile-info">
+
+                  <strong>
+                    {fullName}
+                  </strong>
+
+                  <span>
+                    {displayRole}
+                  </span>
+
+                </div>
+
+
+                <FiChevronDown />
+
+              </button>
+
+
+              {/* PROFILE DROPDOWN */}
+
+              {profileOpen && (
+
+                <div
+                  className="profile-dropdown"
+                  onClick={(event) =>
+                    event.stopPropagation()
+                  }
+                >
+
+                  <div className="dropdown-user">
+
+                    <div className="dropdown-avatar">
+
+                      {avatarLetter}
+
+                    </div>
+
+
+                    <div>
+
+                      <strong>
+                        {fullName}
+                      </strong>
+
+                      <span>
+                        {displayRole}
+                      </span>
+
+                      <small>
+                        {email}
+                      </small>
+
+                    </div>
+
+                  </div>
+
+
+                  <div className="dropdown-divider" />
+
+
+                  <Link to="/profile">
+
+                    <FiUser />
+
+                    My Profile
+
+                  </Link>
+
+
+                  <Link to="/settings">
+
+                    <FiSettings />
+
+                    Account Settings
+
+                  </Link>
+
+
+                  <Link to="/change-password">
+
+                    <FiLock />
+
+                    Change Password
+
+                  </Link>
+
+
+                  <Link to="/help">
+
+                    <FiHelpCircle />
+
+                    Help & Support
+
+                  </Link>
+
+
+                  <div className="dropdown-divider" />
+
+
+                  <button
+                    className="logout-button"
+                    onClick={handleLogout}
+                    type="button"
+                  >
+
+                    <FiLogOut />
+
+                    Logout
+
+                  </button>
+
+                </div>
+
+              )}
 
             </div>
 
@@ -251,96 +888,153 @@ function Members() {
         </header>
 
 
-        {/* CONTENT */}
+        {/* =================================================
+            MEMBERS CONTENT
+            ================================================= */}
 
         <section className="members-content">
 
-          {/* PAGE TITLE */}
+
+          {/* PAGE HEADER */}
 
           <div className="members-page-header">
 
             <div>
-              <h1>Members</h1>
+
+              <h1>
+                Members
+              </h1>
 
               <p>
                 Manage your team members and their roles
               </p>
+
             </div>
 
-            <button className="add-employee-button">
+
+            <button
+              className="add-employee-button"
+              type="button"
+              onClick={() =>
+                navigate("/employees/add")
+              }
+            >
+
               <FiPlus />
+
               Add Employee
+
             </button>
 
           </div>
 
 
-          {/* STAT CARDS */}
+          {/* =================================================
+              STATISTICS
+              ================================================= */}
 
           <div className="member-stat-grid">
+
+
+            {/* TOTAL */}
 
             <div className="member-stat-card">
 
               <div className="stat-icon blue">
+
                 <FiUsers />
+
               </div>
 
+
               <div>
-                <span>Total Members</span>
-                <strong>{totalMembers}</strong>
-                <small>All employees</small>
+
+                <span>
+                  Total Members
+                </span>
+
+                <strong>
+                  {totalMembers}
+                </strong>
+
               </div>
 
             </div>
 
+
+            {/* ACTIVE */}
 
             <div className="member-stat-card">
 
               <div className="stat-icon green">
+
                 <FiUserCheck />
+
               </div>
 
+
               <div>
-                <span>Active Members</span>
-                <strong>{activeMembers}</strong>
-                <small>
-                  {totalMembers
-                    ? Math.round(
-                        (activeMembers / totalMembers) * 100
-                      )
-                    : 0}
-                  % of total
-                </small>
+
+                <span>
+                  Active Members
+                </span>
+
+                <strong>
+                  {activeMembers}
+                </strong>
+
               </div>
 
             </div>
 
+
+            {/* MANAGERS */}
 
             <div className="member-stat-card">
 
               <div className="stat-icon orange">
+
                 <FiBriefcase />
+
               </div>
 
+
               <div>
-                <span>Managers</span>
-                <strong>{managers}</strong>
-                <small>Team managers</small>
+
+                <span>
+                  Managers
+                </span>
+
+                <strong>
+                  {managers}
+                </strong>
+
               </div>
 
             </div>
 
 
+            {/* ADMINS */}
+
             <div className="member-stat-card">
 
               <div className="stat-icon purple">
+
                 <FiShield />
+
               </div>
 
+
               <div>
-                <span>Admins</span>
-                <strong>{admins}</strong>
-                <small>System admins</small>
+
+                <span>
+                  Admins
+                </span>
+
+                <strong>
+                  {admins}
+                </strong>
+
               </div>
 
             </div>
@@ -348,9 +1042,14 @@ function Members() {
           </div>
 
 
-          {/* FILTER BAR */}
+          {/* =================================================
+              FILTERS
+              ================================================= */}
 
           <div className="members-filter-card">
+
+
+            {/* SEARCH */}
 
             <div className="member-search">
 
@@ -358,195 +1057,362 @@ function Members() {
 
               <input
                 type="text"
-                placeholder="Search by name, email or department..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(event) =>
+                  setSearch(
+                    event.target.value
+                  )
+                }
+                placeholder="Search employees..."
               />
 
             </div>
 
 
+            {/* ROLE */}
+
             <select
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
+              onChange={(event) =>
+                setRoleFilter(
+                  event.target.value
+                )
+              }
             >
-              <option value="all">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="manager">Manager</option>
-              <option value="employee">Employee</option>
+
+              <option value="all">
+                All Roles
+              </option>
+
+              <option value="admin">
+                Admin
+              </option>
+
+              <option value="manager">
+                Manager
+              </option>
+
+              <option value="employee">
+                Employee
+              </option>
+
             </select>
 
 
+            {/* STATUS */}
+
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(event) =>
+                setStatusFilter(
+                  event.target.value
+                )
+              }
             >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+
+              <option value="all">
+                All Status
+              </option>
+
+              <option value="active">
+                Active
+              </option>
+
+              <option value="inactive">
+                Inactive
+              </option>
+
             </select>
 
           </div>
 
 
-          {/* MEMBERS TABLE */}
+          {/* =================================================
+              EMPLOYEE TABLE
+              ================================================= */}
 
           <div className="members-table-card">
 
+
+            {/* TABLE HEADER */}
+
             <div className="members-table-header">
 
-              <div>Employee</div>
-              <div>Email</div>
-              <div>Department</div>
-              <div>Role</div>
-              <div>Status</div>
-              <div>Joined On</div>
-              <div>Actions</div>
+              <div>
+                Employee
+              </div>
+
+              <div>
+                Email
+              </div>
+
+              <div>
+                Department
+              </div>
+
+              <div>
+                Role
+              </div>
+
+              <div>
+                Status
+              </div>
+
+              <div>
+                Joined On
+              </div>
+
+              <div>
+                Actions
+              </div>
 
             </div>
 
 
+            {/* LOADING */}
+
             {loading ? (
 
               <div className="members-loading">
-                Loading members...
+
+                Loading employees...
+
               </div>
 
             ) : filteredEmployees.length === 0 ? (
 
+              /* EMPTY */
+
               <div className="members-empty">
+
                 <FiUsers />
-                <h3>No members found</h3>
+
+                <h3>
+                  No employees found
+                </h3>
+
                 <p>
                   Try changing your search or filters.
                 </p>
+
               </div>
 
             ) : (
 
-              filteredEmployees.map((employee) => (
+              /* EMPLOYEES */
 
-                <div
-                  className="member-row"
-                  key={employee.id}
-                >
+              filteredEmployees.map(
+                (employee) => {
 
-                  <div className="employee-cell">
+                  const employeeActive =
+                    employee.is_active !== false;
 
-                    <div className="employee-avatar">
-                      {getInitial(employee)}
-                    </div>
-
-                    <div>
-                      <strong>
-                        {getFullName(employee)}
-                      </strong>
-
-                      <span>
-                        {employee.username}
-                      </span>
-                    </div>
-
-                  </div>
+                  const employeeName =
+                    `${employee.first_name || ""} ${
+                      employee.last_name || ""
+                    }`.trim() ||
+                    employee.username ||
+                    "Unknown";
 
 
-                  <div className="employee-email">
-                    {employee.email}
-                  </div>
+                  return (
 
-
-                  <div className="employee-department">
-                    {employee.department || "—"}
-                  </div>
-
-
-                  <div>
-
-                    <span
-                      className={`role-badge ${
-                        employee.role || "employee"
-                      }`}
+                    <div
+                      className="member-row"
+                      key={employee.id}
                     >
-                      {employee.role || "Employee"}
-                    </span>
-
-                  </div>
 
 
-                  <div>
+                      {/* EMPLOYEE */}
 
-                    <span
-                      className={`status-badge ${
-                        employee.is_active === false
-                          ? "inactive"
-                          : "active"
-                      }`}
-                    >
-                      <span></span>
+                      <div className="employee-cell">
 
-                      {employee.is_active === false
-                        ? "Inactive"
-                        : "Active"}
-                    </span>
+                        <div className="employee-avatar">
 
-                  </div>
+                          {getInitial(
+                            employee
+                          )}
+
+                        </div>
 
 
-                  <div className="joined-date">
+                        <div>
 
-                    {employee.date_joined
-                      ? new Date(
-                          employee.date_joined
-                        ).toLocaleDateString()
-                      : "—"}
+                          <strong>
+                            {employeeName}
+                          </strong>
 
-                  </div>
+                          <span>
+                            @{employee.username}
+                          </span>
 
-
-                  <div className="employee-actions">
-
-                    <button
-                      onClick={() =>
-                        setOpenMenu(
-                          openMenu === employee.id
-                            ? null
-                            : employee.id
-                        )
-                      }
-                    >
-                      <FiMoreVertical />
-                    </button>
-
-
-                    {openMenu === employee.id && (
-
-                      <div className="employee-action-menu">
-
-                        <button>
-                          View Profile
-                        </button>
-
-                        <button>
-                          Edit Employee
-                        </button>
-
-                        <button>
-                          Change Role
-                        </button>
-
-                        <button className="danger">
-                          Deactivate
-                        </button>
+                        </div>
 
                       </div>
 
-                    )}
 
-                  </div>
+                      {/* EMAIL */}
 
-                </div>
+                      <div className="employee-email">
 
-              ))
+                        {employee.email || "-"}
+
+                      </div>
+
+
+                      {/* DEPARTMENT */}
+
+                      <div className="employee-department">
+
+                        {employee.department || "-"}
+
+                      </div>
+
+
+                      {/* ROLE */}
+
+                      <div>
+
+                        <span
+                          className={`role-badge ${
+                            employee.role || "employee"
+                          }`}
+                        >
+
+                          {employee.role || "employee"}
+
+                        </span>
+
+                      </div>
+
+
+                      {/* STATUS */}
+
+                      <div>
+
+                        <span
+                          className={`status-badge ${
+                            employeeActive
+                              ? "active"
+                              : "inactive"
+                          }`}
+                        >
+
+                          <span />
+
+                          {employeeActive
+                            ? "Active"
+                            : "Inactive"}
+
+                        </span>
+
+                      </div>
+
+
+                      {/* JOINED */}
+
+                      <div className="joined-date">
+
+                        {formatDate(
+                          employee.created_at
+                        )}
+
+                      </div>
+
+
+                      {/* ACTIONS */}
+
+                      <div
+                        className="employee-actions"
+                        onClick={(event) =>
+                          event.stopPropagation()
+                        }
+                      >
+
+                        <button
+                          type="button"
+                          onClick={(event) =>
+                            handleMenuClick(
+                              event,
+                              employee.id
+                            )
+                          }
+                          aria-label="Employee actions"
+                        >
+
+                          <FiMoreVertical />
+
+                        </button>
+
+
+                        {openMenu ===
+                          employee.id && (
+
+                          <div className="employee-action-menu">
+
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleViewEmployee(
+                                  employee
+                                )
+                              }
+                            >
+                              View Profile
+                            </button>
+
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleEditEmployee(
+                                  employee
+                                )
+                              }
+                            >
+                              Edit Employee
+                            </button>
+
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                console.log(
+                                  "Change role:",
+                                  employee
+                                )
+                              }
+                            >
+                              Change Role
+                            </button>
+
+
+                            <button
+                              type="button"
+                              className="danger"
+                              onClick={() =>
+                                handleDeleteEmployee(
+                                  employee
+                                )
+                              }
+                            >
+                              Delete Employee
+                            </button>
+
+
+                          </div>
+
+                        )}
+
+                      </div>
+
+                    </div>
+
+                  );
+
+                }
+              )
 
             )}
 
@@ -557,7 +1423,9 @@ function Members() {
       </main>
 
     </div>
+
   );
+
 }
 
 export default Members;

@@ -1,40 +1,35 @@
-/* Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* =========================================
+   APP CONTAINER
+========================================= */
 
-/* Root */
-html,
-body,
-#root {
-    height: 100%;
-}
-
-/* Body */
-body {
-    font-family: "Segoe UI", sans-serif;
-    background-color: #F5F7FB;
-    color: #1F2937;
-}
-
-/* Main App Layout */
 .app-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Header + Content + Footer Layout */
+
+/* =========================================
+   CONTENT CONTAINER
+========================================= */
+
 .content-container {
-    flex: 1;
-    display: flex;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
 }
 
-/* Main Content Area */
+
+/* =========================================
+   MAIN CONTENT
+========================================= */
+
 .main-content {
-    flex: 1;
-    padding: 24px;
-    overflow-y: auto;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 24px;
 }

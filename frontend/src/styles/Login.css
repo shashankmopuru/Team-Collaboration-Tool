@@ -5,6 +5,8 @@
 ========================================================= */
 
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -19,7 +21,6 @@ body,
 
 body {
   font-family: "Poppins", sans-serif;
-  overflow: hidden;
 }
 
 
@@ -34,19 +35,12 @@ body {
   height: 100vh;
   height: 100dvh;
 
-  overflow: hidden;
-
   display: grid;
   grid-template-columns: 55% 45%;
 
-  background: linear-gradient(
-    135deg,
-    #f4fbff 0%,
-    #edf8fd 50%,
-    #f8fcff 100%
-  );
+  overflow: hidden;
 
-  color: #102a50;
+  background: #f4faff;
 }
 
 
@@ -56,8 +50,11 @@ body {
 
 .background-circle {
   position: absolute;
+
   border-radius: 50%;
+
   pointer-events: none;
+
   z-index: 0;
 }
 
@@ -95,6 +92,7 @@ body {
   background: rgba(255, 255, 255, 0.70);
 
   pointer-events: none;
+
   z-index: 0;
 }
 
@@ -105,17 +103,19 @@ body {
 
 .left-panel {
   position: relative;
-  z-index: 2;
 
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
 
-  padding: 28px 40px 24px 50px;
-
-  display: flex;
-  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
 
   overflow: hidden;
+
+  padding: 28px 45px 25px 68px;
+
+  z-index: 1;
 }
 
 
@@ -281,21 +281,34 @@ body {
    RIGHT PANEL
 ========================================================= */
 
+/*
+   IMPORTANT FIX:
+   Navbar and Login Card must be stacked vertically.
+*/
+
 .right-panel {
   position: relative;
-  z-index: 3;
 
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
 
-  padding: 26px 48px 24px 25px;
+  min-width: 0;
+  min-height: 0;
 
   display: flex;
+
   flex-direction: column;
 
-  align-items: flex-end;
+  align-items: center;
+
+  justify-content: flex-start;
 
   overflow: hidden;
+
+  padding: 28px 40px 25px;
+
+  z-index: 2;
 }
 
 
@@ -701,23 +714,23 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 
 
 /* =========================================================
-   TABLET
+   LAPTOP / TABLET
 ========================================================= */
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
 
   .login-page {
     grid-template-columns: 52% 48%;
   }
 
   .left-panel {
-    padding-left: 35px;
+    padding-left: 42px;
     padding-right: 25px;
   }
 
   .right-panel {
-    padding-right: 30px;
     padding-left: 20px;
+    padding-right: 25px;
   }
 
   .hero-content {
@@ -733,8 +746,125 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
   }
 
   .login-card {
+    width: min(100%, 540px);
+
     padding-left: 34px;
     padding-right: 34px;
+  }
+}
+
+
+/* =========================================================
+   SMALL LAPTOP
+========================================================= */
+
+@media (max-width: 1000px) {
+
+  .login-page {
+    grid-template-columns: 48% 52%;
+  }
+
+  .left-panel {
+    padding-left: 30px;
+    padding-right: 20px;
+  }
+
+  .right-panel {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .brand img {
+    width: 55px;
+    height: 55px;
+  }
+
+  .brand h2 {
+    font-size: 23px;
+  }
+
+  .hero-content {
+    margin-top: 30px;
+  }
+
+  .hero-content h1 {
+    font-size: 42px;
+
+    letter-spacing: -1.5px;
+  }
+
+  .description {
+    margin-top: 18px;
+
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .feature-list {
+    margin-top: 22px;
+
+    gap: 9px;
+  }
+
+  .feature-icon {
+    width: 50px;
+    height: 50px;
+
+    font-size: 21px;
+  }
+
+  .feature-item h4 {
+    font-size: 15px;
+  }
+
+  .feature-item span {
+    font-size: 11px;
+  }
+
+  .login-card {
+    width: 100%;
+
+    padding: 23px 27px 22px;
+
+    border-radius: 22px;
+  }
+
+  .login-logo-wrapper {
+    width: 50px;
+    height: 50px;
+
+    margin-bottom: 7px;
+  }
+
+  .login-logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  .login-heading {
+    margin-bottom: 15px;
+  }
+
+  .login-heading h2 {
+    font-size: 25px;
+  }
+
+  .input-container {
+    height: 56px;
+
+    margin-bottom: 10px;
+  }
+
+  .login-options {
+    margin-bottom: 14px;
+  }
+
+  .login-button {
+    height: 50px;
+  }
+
+  .register-link {
+    margin-top: 12px;
   }
 }
 
@@ -745,49 +875,75 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 
 @media (max-width: 850px) {
 
-  body {
-    overflow-y: auto;
-  }
+  /*
+     No scrolling.
+     The desktop left marketing section is hidden
+     so the authentication form can fit completely.
+  */
 
   .login-page {
-    height: auto;
-    min-height: 100vh;
-
-    overflow: visible;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
 
     display: flex;
     flex-direction: column;
+
+    overflow: hidden;
   }
 
   .left-panel {
-    height: auto;
-
-    padding: 25px 25px 35px;
+    display: none;
   }
 
   .right-panel {
-    height: auto;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
 
-    padding: 0 25px 35px;
+    min-height: 0;
+
+    display: flex;
+
+    flex-direction: column;
 
     align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+    padding: 20px;
   }
 
   .navbar {
-    justify-content: flex-end;
+    position: absolute;
+
+    top: 20px;
+    right: 20px;
+
+    width: auto;
+
+    height: 30px;
+
+    margin: 0;
   }
 
-  .hero-content {
-    margin-top: 35px;
+  .navbar ul {
+    gap: 22px;
   }
 
-  .hero-content h1 {
-    font-size: 42px;
+  .navbar a {
+    font-size: 14px;
   }
 
   .login-card {
     width: 100%;
-    max-width: 560px;
+    max-width: 520px;
+
+    padding: 24px 25px 22px;
+
+    border-radius: 22px;
   }
 }
 
@@ -798,41 +954,107 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 
 @media (max-width: 500px) {
 
-  .brand img {
-    width: 55px;
-    height: 55px;
+  .right-panel {
+    padding: 15px;
   }
 
-  .brand h2 {
-    font-size: 22px;
-  }
-
-  .brand span {
-    font-size: 10px;
+  .navbar {
+    top: 15px;
+    right: 15px;
   }
 
   .navbar ul {
-    gap: 25px;
+    gap: 18px;
   }
 
   .navbar a {
-    font-size: 14px;
-  }
-
-  .hero-content h1 {
-    font-size: 36px;
-  }
-
-  .description {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .login-card {
-    padding: 25px 20px;
-    border-radius: 21px;
+    max-width: 100%;
+
+    padding: 22px 18px 20px;
+
+    border-radius: 20px;
+  }
+
+  .login-logo-wrapper {
+    width: 48px;
+    height: 48px;
+
+    margin-bottom: 6px;
+  }
+
+  .login-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .login-heading {
+    margin-bottom: 14px;
   }
 
   .login-heading h2 {
-    font-size: 25px;
+    font-size: 24px;
+  }
+
+  .login-heading p {
+    font-size: 12px;
+  }
+
+  .input-container {
+    height: 54px;
+
+    margin-bottom: 9px;
+  }
+
+  .input-container input {
+    padding-left: 50px;
+    padding-right: 52px;
+
+    font-size: 13px;
+  }
+
+  .input-icon {
+    left: 17px;
+
+    font-size: 20px;
+  }
+
+  .password-toggle {
+    width: 42px;
+    height: 42px;
+
+    right: 6px;
+
+    border-radius: 9px;
+
+    font-size: 18px;
+  }
+
+  .login-options {
+    margin-top: 2px;
+    margin-bottom: 13px;
+  }
+
+  .remember-me {
+    font-size: 12px;
+  }
+
+  .login-options a {
+    font-size: 12px;
+  }
+
+  .login-button {
+    height: 50px;
+
+    font-size: 14px;
+  }
+
+  .register-link {
+    margin-top: 11px;
+
+    font-size: 11px;
   }
 }

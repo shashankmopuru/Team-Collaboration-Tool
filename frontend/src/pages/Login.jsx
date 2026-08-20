@@ -11,6 +11,8 @@ import {
   FiBarChart2,
 } from "react-icons/fi";
 
+import { toast } from "react-toastify";
+
 import api from "../services/api";
 import logo from "../assets/logo.png";
 
@@ -45,25 +47,103 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // =========================
+    // VALIDATE INPUT
+    // =========================
+
+    if (!formData.email || !formData.password) {
+      toast.warning(
+        "Please enter your email and password."
+      );
+
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await api.post("login/", formData);
+      // =========================
+      // LOGIN API
+      // =========================
 
-      localStorage.setItem("access", response.data.access);
-      localStorage.setItem("refresh", response.data.refresh);
+      const response = await api.post(
+        "login/",
+        formData
+      );
 
-      alert("Welcome back!");
+      // =========================
+      // STORE ACCESS TOKEN
+      // =========================
+
+      localStorage.setItem(
+        "access",
+        response.data.access
+      );
+
+      // =========================
+      // STORE SESSION ID
+      // =========================
+
+      if (response.data.session_id) {
+        localStorage.setItem(
+          "session_id",
+          response.data.session_id
+        );
+      }
+
+      // =========================
+      // GET USER NAME
+      // =========================
+
+      const firstName =
+        response.data.first_name || "";
+
+      const lastName =
+        response.data.last_name || "";
+
+      const username =
+        response.data.username || "";
+
+      const fullName =
+        `${firstName} ${lastName}`.trim();
+
+      // =========================
+      // SUCCESS TOAST
+      // =========================
+
+      toast.success(
+        `Welcome back, ${
+          fullName || username || "User"
+        }!`
+      );
+
+      // =========================
+      // NAVIGATE TO DASHBOARD
+      // =========================
 
       navigate("/dashboard");
-    } catch (error) {
-      console.error("Login error:", error);
 
-      alert(
-        error.response?.data?.detail ||
-          error.response?.data?.error ||
-          "Invalid Email or Password"
+    } catch (error) {
+      console.error(
+        "Login error:",
+        error
       );
+
+      // =========================
+      // ERROR MESSAGE
+      // =========================
+
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.detail ||
+        "Unable to sign in. Please try again.";
+
+      // =========================
+      // ERROR TOAST
+      // =========================
+
+      toast.error(errorMessage);
+
     } finally {
       setLoading(false);
     }
@@ -77,7 +157,9 @@ function Login() {
       ========================================== */}
 
       <div className="background-circle circle1"></div>
+
       <div className="background-circle circle2"></div>
+
       <div className="background-wave"></div>
 
 
@@ -101,7 +183,9 @@ function Login() {
 
           <div className="brand-text">
 
-            <h2>TEAM SYNC</h2>
+            <h2>
+              TEAM SYNC
+            </h2>
 
             <span>
               Employee Management System
@@ -234,15 +318,19 @@ function Login() {
           <ul>
 
             <li>
+
               <Link to="/">
                 Home
               </Link>
+
             </li>
 
             <li>
+
               <a href="#contact">
                 Contact
               </a>
+
             </li>
 
           </ul>
@@ -326,7 +414,11 @@ function Login() {
               <FiLock className="input-icon" />
 
               <input
-                type={showPassword ? "text" : "password"}
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
                 name="password"
                 placeholder="Password"
                 value={formData.password}
@@ -405,11 +497,9 @@ function Login() {
               disabled={loading}
             >
 
-              {loading ? (
-                "Signing In..."
-              ) : (
-                "Sign In"
-              )}
+              {loading
+                ? "Signing In..."
+                : "Sign In"}
 
             </button>
 
